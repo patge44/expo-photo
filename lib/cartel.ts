@@ -1,26 +1,41 @@
 import QRCode from 'qrcode';
 
 export async function downloadCartelJPEG(artwork: { id: string, title: string, photo_number?: string, image_url: string }) {
-  // Dimensions pour 17cm x 4cm à environ 300 DPI
+  // Dimensions pour 17cm x 4cm (Cartel) + 17cm x 2cm (Languette) à environ 300 DPI
   const WIDTH = 2000;
-  const HEIGHT = 470;
+  const CONTENT_HEIGHT = 470;
+  const TAB_HEIGHT = 240; // Environ 2cm
   
   const canvas = document.createElement('canvas');
   canvas.width = WIDTH;
-  canvas.height = HEIGHT;
+  canvas.height = CONTENT_HEIGHT + TAB_HEIGHT;
   const ctx = canvas.getContext('2d');
   
   if (!ctx) return;
   
-  // 1. Fond blanc pur
+  // 1. Fond blanc pur sur TOUTE la surface
   ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, WIDTH, HEIGHT);
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   
-  // Bordure (traits de coupe) gris clair très fine pour le massicot
+  // Bordure (traits de coupe) autour du gabarit total
   ctx.strokeStyle = '#e2e8f0'; // slate-200
   ctx.lineWidth = 4; // Un peu épais car l'image fait 2000px de large
-  ctx.strokeRect(2, 2, WIDTH - 4, HEIGHT - 4);
+  ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
+
+  // Ligne de Pliure en pointillés (à 2cm du bord haut)
+  ctx.beginPath();
+  ctx.setLineDash([20, 15]);
+  ctx.moveTo(0, TAB_HEIGHT);
+  ctx.lineTo(WIDTH, TAB_HEIGHT);
+  ctx.strokeStyle = '#cbd5e1'; // slate-300
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.setLineDash([]); // Reset des pointillés
   
+  // 2. Décalage vertical du stylo : tout le reste du dessin se fera "en dessous" de la languette.
+  ctx.translate(0, TAB_HEIGHT);
+  
+  const HEIGHT = CONTENT_HEIGHT; // Le reste du code utilisera cette variable
   const margin = 35; 
   const boxSize = HEIGHT - margin * 2; // ~400px de zone pour mettre l'image/QR
 

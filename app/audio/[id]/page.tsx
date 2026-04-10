@@ -65,7 +65,7 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
         setIsPlaying(true);
       } else {
         // Construct the full text to read
-        const fullText = `${artwork.title}. Par ${artwork.author}. ${artwork.description_overview}. ${artwork.description_details}. Ambiance visuelle : ${artwork.description_atmosphere}`;
+        const fullText = `${artwork.title}. ${artwork.description_overview}. ${artwork.description_details}. Ambiance visuelle : ${artwork.description_atmosphere}`;
         
         // --- PATCH PHONÉTIQUE ---
         // Remplace les occurences du tissu "jean" par "djine" pour que la synthèse vocale française ne lise pas le prénom "Jean".
@@ -102,7 +102,10 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
     window.speechSynthesis.cancel();
     setIsPlaying(false);
     setProgress(0);
-    setTimeout(() => togglePlay(), 200);
+    setTimeout(() => {
+        setIsPlaying(false);
+        togglePlay();
+    }, 500); // 500ms laisse le temps au buffer audio du navigateur de se vider proprement
   };
 
   // Cleanup on unmount
@@ -190,12 +193,10 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
           </div>
         </motion.div>
 
-        <h1 className="text-4xl md:text-5xl font-black mb-3 tracking-tighter uppercase text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">
+        <h1 className="text-3xl md:text-4xl font-black mb-12 tracking-tighter uppercase text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">
+          {artwork.photo_number && <span className="text-primary-500 mr-3">{artwork.photo_number} -</span>}
           {artwork.title}
         </h1>
-        <p className="text-primary-500 font-black mb-12 uppercase tracking-[0.3em] text-[10px] bg-primary-500/10 px-4 py-1.5 rounded-full border border-primary-500/20">
-          Photographe • {artwork.author}
-        </p>
 
         {/* Player Controls */}
         <div className="w-full space-y-12">
@@ -219,11 +220,11 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
 
             <button 
               onClick={togglePlay}
-              className={`w-24 h-24 rounded-[2rem] flex items-center justify-center transition-all bg-white text-slate-950 shadow-[0_20px_50px_rgba(0,0,0,0.3)] active:scale-95 accessible-focus ring-offset-4 ring-offset-slate-950 ring-white/10 hover:ring-white/30 ring-2
+              className={`w-28 h-28 rounded-full flex items-center justify-center transition-all bg-white text-slate-950 shadow-[0_20px_50px_rgba(0,0,0,0.3)] active:scale-95 accessible-focus ring-offset-4 ring-offset-slate-950 ring-white/10 hover:ring-white/30 ring-2
                 ${!isPlaying ? 'bg-primary-500 text-white border-none' : ''}`}
               aria-label={isPlaying ? "Mettre en pause" : "Lancer l'audiodescription"}
             >
-              {isPlaying ? <Pause size={44} fill="currentColor" /> : <Play size={44} className="ml-1.5" fill="currentColor" />}
+              {isPlaying ? <Pause size={56} fill="currentColor" /> : <Play size={56} className="ml-2" fill="currentColor" />}
             </button>
 
             {/* Hidden placeholder to keep layout balanced */}
@@ -239,7 +240,7 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
               Audiodescription guidée
             </h2>
             <div className="space-y-10">
-              <p className="text-2xl md:text-3xl font-black leading-tight text-white tracking-tight">
+              <p className="text-slate-200 leading-[1.8] text-lg font-medium italic">
                 "{artwork.description_overview}"
               </p>
               
@@ -254,7 +255,7 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
                    <Volume2 size={80} />
                 </div>
                 <span className="text-[10px] font-black uppercase text-primary-400 block mb-3 tracking-[0.4em]">Atmosphère & Texture</span>
-                <p className="text-slate-400 leading-relaxed italic text-lg">{artwork.description_atmosphere}</p>
+                <p className="text-slate-400 leading-[1.8] text-lg font-medium">{artwork.description_atmosphere}</p>
               </div>
             </div>
           </section>

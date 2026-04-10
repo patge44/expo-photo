@@ -29,9 +29,9 @@ export async function describeImage(imageBase64: string) {
     throw new Error("Clé API Gemini non configurée.");
   }
 
-  // Utilisation de Gemini 2.5 Flash (le modèle identifié par diagnostic)
+  // Utilisation de la version universelle (Large quota validé)
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }, { apiVersion: 'v1' });
+  const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
   // Utilisation du prompt issu du fichier de configuration éditable
   const prompt = IA_PROMPT;

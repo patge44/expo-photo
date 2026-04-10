@@ -79,7 +79,12 @@ export default function AdminPage() {
         setSelectedTitle(result.data.titles[0]);
         setStatus('done');
       } else {
-        setError(result.error || "Une erreur est survenue lors de l'analyse.");
+        const errorStr = result.error?.toLowerCase() || "";
+        if (errorStr.includes("429 too many requests") || errorStr.includes("quota")) {
+          setError(`🚨 Limite de sécurité Google atteinte ! Vous avez dépassé le quota de requêtes gratuites par minute. Veuillez patienter une minute environ avant de pouvoir réutiliser l'Intelligence Artificielle.`);
+        } else {
+          setError(`[Erreur Système] : ${result.error || "Échec de l'analyse."}`);
+        }
         setStatus('idle');
       }
     } catch (err: any) {
@@ -192,7 +197,7 @@ export default function AdminPage() {
             </Link>
             <div>
               <h1 className="text-3xl font-bold tracking-tight">Espace Club Photo</h1>
-              <p className="text-slate-500">Gérez vos œuvres et préparez l'accessibilité</p>
+              <p className="text-slate-700 dark:text-slate-300 font-medium">Gérez vos œuvres et préparez l'accessibilité</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -256,7 +261,7 @@ export default function AdminPage() {
             {status === 'analyzing' && (
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-3xl flex flex-col items-center gap-4 text-center">
                 <Loader2 className="animate-spin text-primary-500" size={40} />
-                <p className="font-medium">L'IA de qualité (Flash 2.5) analyse votre photo...</p>
+                <p className="font-medium">L'IA de qualité (Édition Flash) analyse votre photo...</p>
                 <p className="text-sm text-slate-400 italic">Extraction des détails et construction du texte descriptif.</p>
               </div>
             )}
@@ -300,42 +305,42 @@ export default function AdminPage() {
                       placeholder="Ou saisissez votre propre titre..."
                       value={customTitle}
                       onChange={(e) => setCustomTitle(e.target.value)}
-                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 mb-4"
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 mb-4 font-medium"
                     />
 
-                    <label className="text-sm font-medium text-slate-500 block mb-2">Numéro de la photo (Cartel) :</label>
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">Numéro de la photo (Cartel) :</label>
                     <input 
                       type="text" 
                       placeholder="Ex: 01, A4, etc."
                       value={photoNumber}
                       onChange={(e) => setPhotoNumber(e.target.value)}
-                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-primary-500"
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 font-medium"
                     />
                   </div>
 
                   <div className="space-y-4">
-                    <label className="text-sm font-medium text-slate-500 block mb-2">Ajustez le texte avant publication :</label>
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">Ajustez le texte avant publication :</label>
                     <div className="p-1 space-y-4">
                       <div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-primary-500 block mb-1">Aperçu global</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-primary-600 dark:text-primary-400 block mb-1">Aperçu global</span>
                         <textarea 
-                          className="w-full p-4 text-sm bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl leading-relaxed italic resize-y min-h-[100px] focus:ring-2 focus:ring-primary-500"
+                          className="w-full p-4 text-sm font-medium text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl leading-relaxed italic resize-y min-h-[100px] focus:ring-2 focus:ring-primary-500"
                           value={proposal.description.overview}
                           onChange={(e) => updateProposalField('overview', e.target.value)}
                         />
                       </div>
                       <div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 block mb-1">Détails de l'image</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300 block mb-1">Détails de l'image</span>
                         <textarea 
-                          className="w-full p-4 text-sm bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl leading-relaxed resize-y min-h-[150px] focus:ring-2 focus:ring-primary-500"
+                          className="w-full p-4 text-sm font-medium text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl leading-relaxed resize-y min-h-[150px] focus:ring-2 focus:ring-primary-500"
                           value={proposal.description.details}
                           onChange={(e) => updateProposalField('details', e.target.value)}
                         />
                       </div>
                       <div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-indigo-500 block mb-1">Ambiance visuelle</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 block mb-1">Ambiance visuelle</span>
                         <textarea 
-                          className="w-full p-4 text-sm bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl leading-relaxed resize-y min-h-[100px] focus:ring-2 focus:ring-primary-500"
+                          className="w-full p-4 text-sm font-medium text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl leading-relaxed resize-y min-h-[100px] focus:ring-2 focus:ring-primary-500"
                           value={proposal.description.atmosphere}
                           onChange={(e) => updateProposalField('atmosphere', e.target.value)}
                         />
@@ -354,17 +359,20 @@ export default function AdminPage() {
                     </button>
                     <button 
                       disabled={isSaving}
-                      onClick={() => setProposal(null)}
-                      className="px-6 py-4 border border-slate-200 dark:border-slate-800 rounded-2xl font-bold hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
+                      onClick={() => { setProposal(null); setStatus('idle'); }}
+                      className="px-6 py-4 border border-red-200 text-red-600 font-bold dark:border-red-900 dark:text-red-400 rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/30 disabled:opacity-50 transition-colors"
                     >
                       Refaire l'IA
                     </button>
                   </div>
                 </motion.div>
               ) : (
-                <div className="h-full min-h-[400px] border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl flex flex-col items-center justify-center text-slate-300 gap-4">
-                  <ImageIcon size={64} className="opacity-10" />
-                  <p className="font-medium">Analyse IA en attente</p>
+                <div className="h-full min-h-[400px] border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl flex flex-col items-center justify-center gap-6 p-8">
+                  <ImageIcon size={64} className="text-slate-400 dark:text-slate-600 opacity-50" />
+                  <div className="text-center">
+                    <p className="font-bold text-slate-500 dark:text-slate-400">Analyse IA en attente</p>
+                    <p className="text-sm font-medium text-slate-400 dark:text-slate-500 mt-2 max-w-xs mx-auto">Veuillez sélectionner une photo puis cliquer sur "Lancer l'analyse" dans le panneau de gauche.</p>
+                  </div>
                 </div>
               )}
             </AnimatePresence>

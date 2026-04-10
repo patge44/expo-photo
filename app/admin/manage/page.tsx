@@ -38,7 +38,7 @@ export default function ManagePage() {
     const { data, error } = await supabase
       .from('artworks')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('photo_number', { ascending: true });
 
     if (!error && data) {
       setArtworks(data);
