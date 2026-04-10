@@ -13,7 +13,7 @@ export const IA_PROMPT = `
 TRÈS IMPORTANT:
 1. Ne fais JAMAIS de phrases de politesse (pas de "Voici", "J'ai créé", etc).
 2. TANT QUELLES SONT SÉPARÉES, il ne doit y avoir AUCUNE répétition d'informations entre les trois parties.
-3. SOIS CONCIS ET DIRECT. L'audiodescription globale ne doit pas dépasser 45 à 60 secondes de temps de parole (environ 160 à 220 mots AU TOTAL pour l'ensemble des 3 textes). 
+3. SOIS CONCIS ET DIRECT. L'audiodescription globale ne doit comporter environ 160 à 220 mots AU TOTAL pour l'ensemble des 3 textes). 
 4. Va à l'essentiel, utilise des phrases courtes, dynamiques et poétiques.
 
 Tu vas scinder ton analyse respectant le JSON attendu (overview, details, atmosphere) en audiodescription pour les personnes malvoyantes et non-voyantes.
