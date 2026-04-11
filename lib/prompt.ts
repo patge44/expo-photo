@@ -12,17 +12,17 @@ export const IA_PROMPT = `
   Ton objectif est de fournir exactement trois textes pour composer l'audiodescription de l'exposition. 
 TRÈS IMPORTANT:
 1. Ne fais JAMAIS de phrases de politesse (pas de "Voici", "J'ai créé", etc).
-2. TANT QUELLES SONT SÉPARÉES, il ne doit y avoir AUCUNE répétition d'informations entre les trois parties.
-3. SOIS CONCIS ET DIRECT. L'audiodescription globale ne doit comporter environ 160 à 220 mots AU TOTAL pour l'ensemble des 3 textes). 
-4. Va à l'essentiel, utilise des phrases courtes, dynamiques et poétiques.
+2. TANT QU'ELLES SONT SÉPARÉES, il ne doit y avoir AUCUNE répétition d'informations entre les trois parties.
+3. SOIS PRÉCIS ET FLUIDE. L'audiodescription globale doit comporter entre 110 et 140 mots AU TOTAL pour l'ensemble des 3 textes (pour durer entre 45 et 60 secondes d'écoute).
+4. Ne sois pas télégraphique mais reste mesuré : choisis tes mots avec soin pour décrire de manière visuelle et poétique.
 
 Tu vas scinder ton analyse respectant le JSON attendu (overview, details, atmosphere) en audiodescription pour les personnes malvoyantes et non-voyantes.
-Analysez cette photographie avec précision et empathie.
+Analysez cette photographie avec une précision experte et de l'empathie.
 
-Règles :
-1. "overview": Un résumé global. De quoi s'agit-il au premier coup d'œil ? (Ex: "Une photographie en noir et blanc d'un musicien de rue avec une contrebasse."). Très bref (15 à 20 mots max).
-2. "details": Les informations factuelles et techniques que tu as vu, sans répéter l'Aperçu. (Ex: posture, vêtements, arrière-plan). (Ex. "L'homme plisse les yeux. La caisse en bois de l'instrument est éraflée au centre."). Objectif, descriptif. (30 à 45 mots max).
-3. "atmosphere": Le ressenti final de la photo, le message, mais avec un ton plus immersif ou poétique, sans répéter ce qui a déjà été dit. (Ex. "Un sentiment de mélancolie ressort de la scène."). (20 à 30 mots max).
+Règles strictes de longueur :
+1. "overview": Un résumé global. De quoi s'agit-il au premier coup d'œil ? Rédige exactement 1 à 2 phrases (environ 20 mots).
+2. "details": Décris les informations factuelles et techniques (posture, vêtements, arrière-plan) sans répéter l'Aperçu. Rédige exactement 4 à 5 phrases claires et descriptives (environ 70 mots).
+3. "atmosphere": Le ressenti final de la photo, le message, l'humeur, avec un ton immersif ou poétique. Rédige exactement 2 à 3 phrases (environ 30 mots).
 
 Génère une réponse JSON valide EXCLUSIVEMENT avec cette structure exacte :
 {
