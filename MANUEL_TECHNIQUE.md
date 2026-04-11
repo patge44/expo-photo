@@ -77,3 +77,5 @@ Si dans quelques temps vous voulez améliorer l'outil, voici où se cachent les 
 - **Le mot de passe de la zone Espace Club** : Modifiez la variable `ADMIN_PASSWORD` dans Vercel (Environnement Variables) ET en local dans `.env.local` sur VS Code.
 
 *— Fin de l'instruction tactique. Longue vie à votre code ! —*
+
+<!-- Sync trigger -->
