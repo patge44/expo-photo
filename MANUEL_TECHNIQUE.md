@@ -1,6 +1,6 @@
-# 📘 Manuel Technique "Éclats de Vue" : L'envers du décor
+# 📘 Manuel Technique "De la note à l’image" : L'envers du décor
 
-Ce manuel s'adresse aux futurs opérateurs ou administrateurs du Photoclub désirant comprendre le fonctionnement interne de l'application *Éclats de Vue / Expo-photo*, son déploiement, et son entretien.
+Ce manuel s'adresse aux futurs opérateurs ou administrateurs du Photoclub désirant comprendre le fonctionnement interne de l'application *De la note à l’image / Expo-photo*, son déploiement, et son entretien.
 
 ---
 

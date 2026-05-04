@@ -9,7 +9,7 @@ import Link from 'next/link';
 export default function AudioPlayerPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const id = resolvedParams.id;
-  
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [artwork, setArtwork] = useState<any>(null);
@@ -66,23 +66,23 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
       } else {
         // Construct the full text to read
         const fullText = `${artwork.title}. ${artwork.description_overview}. ${artwork.description_details}. Ambiance visuelle : ${artwork.description_atmosphere}`;
-        
+
         // --- PATCH PHONÉTIQUE ---
         // Remplace les occurences du tissu "jean" par "djine" pour que la synthèse vocale française ne lise pas le prénom "Jean".
         let spokenText = fullText.replace(/ en jean/gi, " en djine")
-                                 .replace(/ de jean/gi, " de djine")
-                                 .replace(/ du jean/gi, " du djine")
-                                 .replace(/ le jean/gi, " le djine")
-                                 .replace(/ au jean/gi, " au djine");
-        
+          .replace(/ de jean/gi, " de djine")
+          .replace(/ du jean/gi, " du djine")
+          .replace(/ le jean/gi, " le djine")
+          .replace(/ au jean/gi, " au djine");
+
         const utterance = new SpeechSynthesisUtterance(spokenText);
         utterance.lang = 'fr-FR';
         utterance.rate = 0.9;
-        
+
         const voices = window.speechSynthesis.getVoices();
-        const preferredVoice = voices.find(v => v.lang.startsWith('fr') && (v.name.includes('Google') || v.name.includes('Female'))) || 
-                               voices.find(v => v.lang.startsWith('fr'));
-        
+        const preferredVoice = voices.find(v => v.lang.startsWith('fr') && (v.name.includes('Google') || v.name.includes('Female'))) ||
+          voices.find(v => v.lang.startsWith('fr'));
+
         if (preferredVoice) utterance.voice = preferredVoice;
 
         utterance.onend = () => {
@@ -103,8 +103,8 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
     setIsPlaying(false);
     setProgress(0);
     setTimeout(() => {
-        setIsPlaying(false);
-        togglePlay();
+      setIsPlaying(false);
+      togglePlay();
     }, 500); // 500ms laisse le temps au buffer audio du navigateur de se vider proprement
   };
 
@@ -140,7 +140,7 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
   return (
     <main className="min-h-screen bg-slate-950 text-white flex flex-col p-6 overflow-x-hidden selection:bg-primary-500/30">
       <div className="absolute inset-0 bg-gradient-to-b from-primary-900/10 to-transparent pointer-events-none" />
-      
+
       <header className="flex items-center justify-between mb-8 z-10">
         <Link href={`/gallery`} className="p-3 rounded-full bg-slate-900 border border-slate-800 accessible-focus transition-transform active:scale-95 group" aria-label="Retour à la galerie">
           <ArrowLeft size={24} className="group-hover:-translate-x-1 transition-transform" />
@@ -154,7 +154,7 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
 
       <div className="flex-1 flex flex-col items-center justify-center text-center max-w-lg mx-auto w-full z-10">
         {/* Visualizer / Artwork Card */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="relative w-64 h-64 md:w-80 md:h-80 mb-12"
@@ -171,11 +171,11 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
               />
             ))}
           </AnimatePresence>
-          
+
           <div className="w-full h-full rounded-[2.5rem] bg-slate-900 border-4 border-slate-800 overflow-hidden shadow-2xl relative group">
-            <img 
-              src={artwork.image_url} 
-              alt={artwork.title} 
+            <img
+              src={artwork.image_url}
+              alt={artwork.title}
               className={`w-full h-full object-cover transition-all duration-[2000ms] ease-out ${isPlaying ? 'scale-125 blur-[2px] brightness-50' : 'scale-100'}`}
             />
             {isPlaying && (
@@ -201,8 +201,8 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
         {/* Player Controls */}
         <div className="w-full space-y-12">
           <div className="relative w-full h-2 bg-slate-900 rounded-full overflow-hidden">
-            <motion.div 
-              className="absolute left-0 top-0 h-full bg-gradient-to-r from-primary-600 to-indigo-500" 
+            <motion.div
+              className="absolute left-0 top-0 h-full bg-gradient-to-r from-primary-600 to-indigo-500"
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               transition={{ type: 'linear', duration: 0.5 }}
@@ -210,15 +210,15 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
           </div>
 
           <div className="flex items-center justify-center gap-10">
-            <button 
+            <button
               onClick={restart}
-              className="p-5 rounded-3xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white accessible-focus transition-all hover:bg-slate-800 group" 
+              className="p-5 rounded-3xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white accessible-focus transition-all hover:bg-slate-800 group"
               aria-label="Recommencer l'écoute"
             >
               <RotateCcw size={28} className="group-hover:rotate-[-90deg] transition-transform" />
             </button>
 
-            <button 
+            <button
               onClick={togglePlay}
               className={`w-28 h-28 rounded-full flex items-center justify-center transition-all bg-white text-slate-950 shadow-[0_20px_50px_rgba(0,0,0,0.3)] active:scale-95 accessible-focus ring-offset-4 ring-offset-slate-950 ring-white/10 hover:ring-white/30 ring-2
                 ${!isPlaying ? 'bg-primary-500 text-white border-none' : ''}`}
@@ -235,7 +235,7 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
         {/* Descriptive Text Card */}
         <div className="mt-20 space-y-10 text-left w-full border-t border-white/5 pt-16">
           <section className="relative">
-             <div className="absolute -left-6 top-0 bottom-0 w-1 bg-primary-500/20 rounded-full" />
+            <div className="absolute -left-6 top-0 bottom-0 w-1 bg-primary-500/20 rounded-full" />
             <h2 className="text-[10px] font-black text-primary-500 uppercase tracking-[0.4em] mb-6 flex items-center gap-3">
               Audiodescription guidée
             </h2>
@@ -243,7 +243,7 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
               <p className="text-slate-200 leading-[1.8] text-lg font-medium italic">
                 "{artwork.description_overview}"
               </p>
-              
+
               <div className="prose prose-invert max-w-none">
                 <p className="text-slate-300 leading-[1.8] text-lg font-medium">
                   {artwork.description_details}
@@ -252,7 +252,7 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
 
               <div className="p-8 bg-gradient-to-br from-primary-950/20 to-slate-900/50 border border-white/5 rounded-[2rem] shadow-inner relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                   <Volume2 size={80} />
+                  <Volume2 size={80} />
                 </div>
                 <span className="text-[10px] font-black uppercase text-primary-400 block mb-3 tracking-[0.4em]">Atmosphère & Texture</span>
                 <p className="text-slate-400 leading-[1.8] text-lg font-medium">{artwork.description_atmosphere}</p>
@@ -261,11 +261,11 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
           </section>
         </div>
       </div>
-      
+
       <footer className="mt-32 py-12 text-center border-t border-white/5 opacity-40">
-         <p className="text-[9px] font-black uppercase tracking-[0.5em] text-slate-500">
-           Exposition Éclats de Vue • 2026 • Soutien par IA Inclusive
-         </p>
+        <p className="text-[9px] font-black uppercase tracking-[0.5em] text-slate-500">
+          Exposition De la note à l’image• 2026 • Soutien par IA Inclusive
+        </p>
       </footer>
     </main>
   );

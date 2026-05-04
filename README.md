@@ -1,6 +1,6 @@
-# 📸 Éclats de Vue (Expo-Photo)
+# 📸 De la note à l’image (Expo-Photo)
 
-**Éclats de Vue** est une application web innovante conçue spécifiquement pour rendre les expositions photographiques accessibles aux personnes malvoyantes et non-voyantes, grâce à l'intervention de l'Intelligence Artificielle.
+**De la note à l’image** est une application web innovante conçue spécifiquement pour rendre les expositions photographiques accessibles aux personnes malvoyantes et non-voyantes, grâce à l'intervention de l'Intelligence Artificielle.
 
 ## 🌟 Le Concept
 Dans une galerie physique, chaque photographie de l'exposition est accompagnée d'un **Cartel contenant un QR Code**. 

@@ -26,9 +26,9 @@ export default function DebugPage() {
     <div className="min-h-screen bg-slate-50 p-8">
       <div className="max-w-2xl mx-auto space-y-6">
         <h1 className="text-2xl font-bold text-slate-800">Diagnostic Gemini API</h1>
-        
+
         <div className="flex gap-4">
-          <button 
+          <button
             onClick={runTest}
             disabled={loading}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-semibold"
@@ -36,7 +36,7 @@ export default function DebugPage() {
             {loading ? '...' : 'Diagnostic Server Action'}
           </button>
 
-          <button 
+          <button
             onClick={runApiTest}
             disabled={loading}
             className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 font-semibold"
@@ -56,7 +56,7 @@ export default function DebugPage() {
               </div>
             )}
             <div className="p-4 bg-white rounded-xl shadow-sm border">
-               <p className="font-semibold">Clé détectée : <span className="text-blue-600 font-mono">{data.maskedKey || "AUCUNE"}</span></p>
+              <p className="font-semibold">Clé détectée : <span className="text-blue-600 font-mono">{data.maskedKey || "AUCUNE"}</span></p>
             </div>
 
             <div className="grid grid-cols-1 gap-4">
