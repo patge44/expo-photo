@@ -31,7 +31,7 @@ export async function describeImage(imageBase64: string) {
 
   // Utilisation de la version stable (Contournement de la surcharge de 'latest')
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   // Utilisation du prompt issu du fichier de configuration éditable
   const prompt = IA_PROMPT;
