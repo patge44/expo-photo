@@ -65,7 +65,7 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
         setIsPlaying(true);
       } else {
         // Construct the full text to read
-        const fullText = `${artwork.title}. ${artwork.description_overview}. ${artwork.description_details}. Ambiance visuelle : ${artwork.description_atmosphere}`;
+        const fullText = `${artwork.title}. ${artwork.description_overview}. ${artwork.description_details}. ${artwork.description_atmosphere}`;
 
         // --- PATCH PHONÉTIQUE ---
         // Remplace les occurences du tissu "jean" par "djine" pour que la synthèse vocale française ne lise pas le prénom "Jean".
