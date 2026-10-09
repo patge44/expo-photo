@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useEffect, use } from 'react';
-import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, RotateCcw, Volume2, ArrowLeft, Headphones, Loader2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -20,14 +19,12 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
   useEffect(() => {
     async function fetchArtwork() {
       try {
-        const { data, error: dbError } = await supabase
-          .from('artworks')
-          .select('*')
-          .eq('id', id)
-          .single();
-
-        if (dbError) throw dbError;
-        setArtwork(data);
+        const res = await fetch(`/api/artworks?id=${id}`);
+        if (res.ok) {
+          setArtwork(await res.json());
+        } else {
+          throw new Error('not found');
+        }
       } catch (err: any) {
         setError("L'œuvre est introuvable ou n'est plus disponible.");
         console.error(err);
