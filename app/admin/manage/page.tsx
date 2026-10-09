@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
 import { deleteArtworkAction, updateArtworkAction } from '@/app/actions/db';
 import { downloadCartelJPEG } from '@/lib/cartel';
 import { Loader2, Trash2, ArrowLeft, Image as ImageIcon, Search, Edit3, Save, X, Presentation } from 'lucide-react';
@@ -35,15 +34,16 @@ export default function ManagePage() {
 
   async function fetchArtworks() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('artworks')
-      .select('*')
-      .order('photo_number', { ascending: true });
-
-    if (!error && data) {
-      setArtworks(data);
+    try {
+      const res = await fetch('/api/artworks?all=1');
+      if (res.ok) {
+        setArtworks(await res.json());
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   const handleDelete = async (id: string, imageUrl: string) => {

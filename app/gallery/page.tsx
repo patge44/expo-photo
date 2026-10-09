@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
 import { motion } from 'framer-motion';
 import { Headphones, ArrowRight, Camera, Loader2, Sparkles } from 'lucide-react';
 import Link from 'next/link';
@@ -19,20 +18,23 @@ export default function GalleryPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchArtworks() {
-      const { data, error } = await supabase
-        .from('artworks')
-        .select('id, title, photo_number, image_url')
-        .eq('status', 'published')
-        .order('created_at', { ascending: false });
-
-      if (!error && data) {
-        setArtworks(data);
+    async function fetchArtwork() {
+      try {
+        const res = await fetch(`/api/artworks?id=${id}`);
+        if (res.ok) {
+          setArtwork(await res.json());
+        } else {
+          throw new Error('not found');
+        }
+      } catch (err: any) {
+        setError("L'œuvre est introuvable ou n'est plus disponible.");
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
-    fetchArtworks();
-  }, []);
+    fetchArtwork();
+  }, [id]);
 
   if (loading) {
     return (
