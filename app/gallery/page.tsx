@@ -20,7 +20,7 @@ export default function GalleryPage() {
   useEffect(() => {
     async function fetchArtwork() {
       try {
-        const res = await fetch(`/api/artworks?id=${id}`);
+        const res = await fetch('/api/artworks');
         if (res.ok) {
           setArtwork(await res.json());
         } else {
@@ -34,7 +34,7 @@ export default function GalleryPage() {
       }
     }
     fetchArtwork();
-  }, [id]);
+  }, []);
 
   if (loading) {
     return (
