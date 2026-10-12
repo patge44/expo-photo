@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Headphones, ArrowRight, Camera, Loader2, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import { siteConfig } from '@/lib/config';
+import { useSiteConfig } from '@/components/site-config';
+
+const siteConfig = useSiteConfig();
 
 interface Artwork {
   id: string;

@@ -3,9 +3,10 @@
 import { motion } from 'framer-motion';
 import { Camera, AudioLines, QrCode, HeartHandshake } from 'lucide-react';
 import Link from 'next/link';
-import { siteConfig } from '@/lib/config';
+import { useSiteConfig } from '@/components/site-config';
 
 export default function Home() {
+  const siteConfig = useSiteConfig();
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(14,165,233,0.15),transparent)] pointer-events-none" />

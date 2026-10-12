@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/lib/config";
+import { SiteConfigProvider } from '@/components/site-config';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,7 +21,9 @@ export default function RootLayout({
   return (
     <html lang="fr" className="h-full">
       <body className={`${inter.className} h-full antialiased`}>
-        {children}
+        <SiteConfigProvider value={siteConfig}>
+          {children}
+        </SiteConfigProvider>
       </body>
     </html>
   );
