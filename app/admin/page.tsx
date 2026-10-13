@@ -20,7 +20,6 @@ interface AIProposal {
 }
 
 export default function AdminPage() {
-import { useSiteConfig } from '@/components/site-config';
   const siteConfig = useSiteConfig();
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
