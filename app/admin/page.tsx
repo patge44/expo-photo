@@ -8,7 +8,7 @@ import { saveArtworkAction } from '@/app/actions/db';
 import confetti from 'canvas-confetti';
 import Link from 'next/link';
 import QRCode from 'qrcode';
-
+import { useSiteConfig } from '@/components/site-config';
 
 interface AIProposal {
   titles: string[];
