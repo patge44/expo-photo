@@ -6,9 +6,8 @@ import { Lock, ArrowRight, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useSiteConfig } from '@/components/site-config';
 
-const siteConfig = useSiteConfig();
-
 export default function LoginPage() {
+  const siteConfig = useSiteConfig();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();

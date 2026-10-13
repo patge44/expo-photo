@@ -6,7 +6,6 @@ import { Headphones, ArrowRight, Camera, Loader2, Sparkles } from 'lucide-react'
 import Link from 'next/link';
 import { useSiteConfig } from '@/components/site-config';
 
-const siteConfig = useSiteConfig();
 
 interface Artwork {
   id: string;
@@ -16,6 +15,7 @@ interface Artwork {
 }
 
 export default function GalleryPage() {
+  const siteConfig = useSiteConfig();
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState(true);
 
