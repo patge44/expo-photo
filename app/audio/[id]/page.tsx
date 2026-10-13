@@ -4,8 +4,9 @@ import { useState, useRef, useEffect, use } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, RotateCcw, Volume2, ArrowLeft, Headphones, Loader2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
-
+import { useSiteConfig } from '@/components/site-config';
 export default function AudioPlayerPage({ params }: { params: Promise<{ id: string }> }) {
+  const siteConfig = useSiteConfig(); 
   const resolvedParams = use(params);
   const id = resolvedParams.id;
 
@@ -261,7 +262,7 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
 
       <footer className="mt-32 py-12 text-center border-t border-white/5 opacity-40">
         <p className="text-[9px] font-black uppercase tracking-[0.5em] text-slate-500">
-          Exposition De la note à l’image• 2026 • Soutien par IA Inclusive
+          Exposition {siteConfig.exhibitionName} • 2026 • Soutien par IA Inclusive
         </p>
       </footer>
     </main>
