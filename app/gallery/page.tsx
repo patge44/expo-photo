@@ -72,7 +72,6 @@ export default function GalleryPage() {
             Espace Admin
           </Link>
         </header>
-
         {error ? (
           <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
             <p className="text-red-500 mb-4 text-lg">{error}</p>
@@ -81,6 +80,13 @@ export default function GalleryPage() {
             </button>
           </div>
         ) : artworks.length === 0 ? (
+          <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
+            <p className="text-slate-400 mb-4 text-lg">Aucune œuvre n'a encore été publiée.</p>
+            <Link href="/admin" className="text-primary-600 font-bold hover:underline">
+              Commencer par ajouter une photo
+            </Link>
+          </div>
+        ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {artworks.map((artwork, idx) => (
               <motion.div
@@ -91,21 +97,21 @@ export default function GalleryPage() {
                 className="group relative bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all"
               >
                 <div className="aspect-[4/3] overflow-hidden bg-slate-200 dark:bg-slate-800">
-                  <img 
-                    src={artwork.image_url} 
+                  <img
+                    src={artwork.image_url}
                     alt={artwork.title}
                     className="w-full h-full object-contain p-2 transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
-                
+
                 <div className="p-6">
                   <h3 className="text-xl font-bold mb-6 group-hover:text-primary-600 transition-colors tracking-tight">
                     {artwork.photo_number && <span className="text-primary-500 mr-2">{artwork.photo_number} -</span>}
                     {artwork.title}
                   </h3>
-                  
-                  <Link 
+
+                  <Link
                     href={`/audio/${artwork.id}`}
                     className="flex items-center justify-between w-full px-5 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-primary-600 hover:text-white rounded-2xl font-bold transition-all text-sm group/btn"
                   >
