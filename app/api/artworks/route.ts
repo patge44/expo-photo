@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
+// Les données changent à chaque photo ajoutée : jamais de mise en cache.
+// (Critique en multi-clubs : une réponse figée au build serait partagée par tous les clubs.)
+export const dynamic = 'force-dynamic';
 /**
  * GET /api/artworks            → œuvres publiées (galerie)
  * GET /api/artworks?id=xxx     → une œuvre complète (lecteur audio)

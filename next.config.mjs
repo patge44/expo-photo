@@ -2,16 +2,15 @@
 const nextConfig = {
   // Build autonome : nécessaire pour l'image Docker minimale
   output: 'standalone',
-  typescript: {
-    // !! ATTENTION !!
-    // Permet de forcer le build même avec des erreurs TS
-    ignoreBuildErrors: true,
+  // Les server actions transmettent l'image en base64 :
+  // la limite par défaut (1 Mo) faisait échouer les grandes photos.
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
   },
-  eslint: {
-    // !! ATTENTION !!
-    // Permet de forcer le build même avec des erreurs ESLint
-    ignoreDuringBuilds: true,
-  },
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
 };
 
 export default nextConfig;

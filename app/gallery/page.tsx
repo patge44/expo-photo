@@ -18,24 +18,31 @@ export default function GalleryPage() {
   const siteConfig = useSiteConfig();
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const chargerOeuvres = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/artworks', { cache: 'no-store' });
+      if (!res.ok) throw new Error(`réponse ${res.status}`);
+      setArtworks(await res.json());
+    } catch (err) {
+      console.error(err);
+      setError("Impossible de charger la galerie pour le moment. Rechargez la page.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function fetchArtwork() {
-      try {
-        const res = await fetch('/api/artworks');
-        if (res.ok) {
-          setArtwork(await res.json());
-        } else {
-          throw new Error('not found');
-        }
-      } catch (err: any) {
-        setError("L'œuvre est introuvable ou n'est plus disponible.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchArtwork();
+    chargerOeuvres();
+    // Flèche retour : si le navigateur restaure la page depuis son cache,
+    // on recharge les œuvres pour ne pas afficher un état périmé.
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) chargerOeuvres();
+    };
+    window.addEventListener('pageshow', onPageShow);
+    return () => window.removeEventListener('pageshow', onPageShow);
   }, []);
 
   if (loading) {
@@ -66,14 +73,14 @@ export default function GalleryPage() {
           </Link>
         </header>
 
-        {artworks.length === 0 ? (
+        {error ? (
           <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
-            <p className="text-slate-400 mb-4 text-lg">Aucune œuvre n'a encore été publiée.</p>
-            <Link href="/admin" className="text-primary-600 font-bold hover:underline">
-              Commencer par ajouter une photo
-            </Link>
+            <p className="text-red-500 mb-4 text-lg">{error}</p>
+            <button onClick={chargerOeuvres} className="text-primary-600 font-bold hover:underline">
+              Réessayer
+            </button>
           </div>
-        ) : (
+        ) : artworks.length === 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {artworks.map((artwork, idx) => (
               <motion.div

@@ -45,23 +45,60 @@ export default function AdminPage() {
     });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Redimensionne l'image dans le navigateur AVANT tout envoi :
+  // max 1600 px, JPEG qualité 85 % — une photo de 20 Mo devient ~300 Ko.
+  const resizeImage = (file: File, maxDim = 1600, quality = 0.85): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      img.onload = () => {
+        const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(
+          (blob) => {
+            URL.revokeObjectURL(objectUrl);
+            if (blob) resolve(new File([blob], 'photo.jpg', { type: 'image/jpeg' }));
+            else reject(new Error("Échec du redimensionnement de l'image."));
+          },
+          'image/jpeg',
+          quality
+        );
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error('Image illisible.'));
+      };
+      img.src = objectUrl;
+    });
+  };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      if (selectedFile.size > 5 * 1024 * 1024) {
-        setError("Fichier trop volumineux. Veuillez compresser votre image sous 5 Mo.");
+      if (selectedFile.size > 20 * 1024 * 1024) {
+        setError("Fichier trop volumineux (plus de 20 Mo). Vérifiez qu'il s'agit bien d'une photo.");
         return;
       }
-
-      setFile(selectedFile);
-      setPreview(URL.createObjectURL(selectedFile));
-      setStatus('idle');
-      setProposal(null);
-      setError(null);
-      setSelectedTitle("");
-      setCustomTitle("");
-      setPhotoNumber("");
-      setQrUrl("");
+      try {
+        setError(null);
+        // La photo est redimensionnée ici : tout ce qui suit (aperçu,
+        // analyse IA, enregistrement) utilise la version légère.
+        const resized = await resizeImage(selectedFile);
+        setFile(resized);
+        setPreview(URL.createObjectURL(resized));
+        setStatus('idle');
+        setProposal(null);
+        setSelectedTitle("");
+        setCustomTitle("");
+        setPhotoNumber("");
+        setQrUrl("");
+      } catch (err) {
+        console.error(err);
+        setError("Impossible de lire cette image. Essayez un autre fichier.");
+      }
     }
   };
 
