@@ -6,7 +6,6 @@ import { Headphones, ArrowRight, Camera, Loader2, Sparkles } from 'lucide-react'
 import Link from 'next/link';
 import { useSiteConfig } from '@/components/site-config';
 
-
 interface Artwork {
   id: string;
   title: string;
@@ -19,6 +18,7 @@ export default function GalleryPage() {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const chargerOeuvres = async () => {
     setLoading(true);
     setError(null);
@@ -64,14 +64,15 @@ export default function GalleryPage() {
             </div>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight">Galerie Numérique</h1>
           </div>
-          <Link 
-            href="/admin" 
+          <Link
+            href="/admin"
             className="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl font-bold shadow-sm hover:shadow-md transition-all"
           >
             <Sparkles size={18} className="text-amber-500" />
             Espace Admin
           </Link>
         </header>
+
         {error ? (
           <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
             <p className="text-red-500 mb-4 text-lg">{error}</p>
@@ -126,7 +127,7 @@ export default function GalleryPage() {
             ))}
           </div>
         )}
-        
+
         <footer className="mt-20 pt-8 border-t border-slate-200 dark:border-slate-800 text-center text-slate-400 text-sm">
           <Link href="/" className="hover:text-primary-600 transition-colors">Retour à l'accueil</Link>
           <span className="mx-4">|</span>
