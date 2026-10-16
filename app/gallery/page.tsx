@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Headphones, ArrowRight, Camera, Loader2, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useSiteConfig } from '@/components/site-config';
-
+import { Headphones, ArrowRight, Camera, Loader2, Sparkles, ScanLine } from 'lucide-react';
 interface Artwork {
   id: string;
   title: string;
@@ -70,6 +70,14 @@ export default function GalleryPage() {
           >
             <Sparkles size={18} className="text-amber-500" />
             Espace Admin
+          </Link>
+          <Link
+            href="/scan"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-xl font-bold shadow-sm hover:shadow-md transition-all"
+            aria-label="Scanner le QR code d'une œuvre"
+          >
+            <ScanLine size={18} />
+            Scanner une œuvre
           </Link>
         </header>
 
