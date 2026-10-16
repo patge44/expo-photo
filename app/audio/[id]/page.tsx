@@ -2,20 +2,26 @@
 
 import { useState, useRef, useEffect, use } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, RotateCcw, Volume2, ArrowLeft, Headphones, Loader2, AlertCircle } from 'lucide-react';
+import { Play, Pause, RotateCcw, Volume2, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useSiteConfig } from '@/components/site-config';
+
 export default function AudioPlayerPage({ params }: { params: Promise<{ id: string }> }) {
-  const siteConfig = useSiteConfig(); 
+  const siteConfig = useSiteConfig();
   const resolvedParams = use(params);
   const id = resolvedParams.id;
 
   const [isPlaying, setIsPlaying] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
   const [progress, setProgress] = useState(0);
   const [artwork, setArtwork] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Position de lecture (index de caractère dans le texte) et texte en cours.
+  const charRef = useRef(0);
+  const textRef = useRef('');
+  const pauseRequestedRef = useRef(false);
 
   useEffect(() => {
     async function fetchArtwork() {
@@ -36,80 +42,108 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
     fetchArtwork();
   }, [id]);
 
-  useEffect(() => {
-    // Sync progress with speech synthesis for better visual feedback
-    let interval: any;
-    if (isPlaying) {
-      interval = setInterval(() => {
-        // Simple linear estimation of progress as speechSynthesis doesn't give precise duration
-        // We increment until 100% based on an average reading speed
-        setProgress(prev => Math.min(prev + 0.5, 99));
-      }, 500);
-    } else {
-      clearInterval(interval);
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying]);
+  // Construit le texte complet à lire (avec le patch phonétique « jean »).
+  const buildSpokenText = (art: any) => {
+    const fullText = `${art.title}. ${art.description_overview}. ${art.description_details}. ${art.description_atmosphere}`;
+    return fullText
+      .replace(/ en jean/gi, ' en djine')
+      .replace(/ de jean/gi, ' de djine')
+      .replace(/ du jean/gi, ' du djine')
+      .replace(/ le jean/gi, ' le djine')
+      .replace(/ au jean/gi, ' au djine');
+  };
+
+  // Lance la synthèse depuis un index de caractère donné (0 = début).
+  const startReading = (from: number) => {
+    const synth = window.speechSynthesis;
+    synth.cancel(); // état propre, quel que soit ce qui a pu se passer avant
+    const text = textRef.current;
+    if (!text) return;
+
+    const utterance = new SpeechSynthesisUtterance(text.slice(from));
+    utterance.lang = 'fr-FR';
+    utterance.rate = 0.9;
+
+    const voices = synth.getVoices();
+    const preferredVoice =
+      voices.find(v => v.lang.startsWith('fr') && (v.name.includes('Google') || v.name.includes('Female'))) ||
+      voices.find(v => v.lang.startsWith('fr'));
+    if (preferredVoice) utterance.voice = preferredVoice;
+
+    // Suivi réel de la position : permet la vraie reprise après pause
+    // et une barre de progression exacte (fini le timer estimé).
+    utterance.onboundary = (e) => {
+      if (typeof e.charIndex === 'number') {
+        charRef.current = from + e.charIndex;
+        setProgress(Math.min(100, Math.round((charRef.current / text.length) * 100)));
+      }
+    };
+
+    utterance.onend = () => {
+      if (pauseRequestedRef.current) {
+        // Fin brutale causée par la pause (iOS Safari) : on garde la position,
+        // le bouton « Reprendre » relancera depuis charRef.
+        return;
+      }
+      setIsPlaying(false);
+      setHasStarted(false);
+      charRef.current = 0;
+      setProgress(100);
+    };
+
+    pauseRequestedRef.current = false;
+    synth.speak(utterance);
+    setIsPlaying(true);
+    setHasStarted(true);
+    if (from === 0) setProgress(0);
+  };
 
   const togglePlay = () => {
     if (typeof window === 'undefined' || !artwork) return;
+    const synth = window.speechSynthesis;
 
     if (isPlaying) {
-      window.speechSynthesis.pause();
+      // ----- PAUSE -----
+      pauseRequestedRef.current = true;
+      synth.pause();
       setIsPlaying(false);
-    } else {
-      if (window.speechSynthesis.paused) {
-        window.speechSynthesis.resume();
-        setIsPlaying(true);
-      } else {
-        // Construct the full text to read
-        const fullText = `${artwork.title}. ${artwork.description_overview}. ${artwork.description_details}. ${artwork.description_atmosphere}`;
-
-        // --- PATCH PHONÉTIQUE ---
-        // Remplace les occurences du tissu "jean" par "djine" pour que la synthèse vocale française ne lise pas le prénom "Jean".
-        let spokenText = fullText.replace(/ en jean/gi, " en djine")
-          .replace(/ de jean/gi, " de djine")
-          .replace(/ du jean/gi, " du djine")
-          .replace(/ le jean/gi, " le djine")
-          .replace(/ au jean/gi, " au djine");
-
-        const utterance = new SpeechSynthesisUtterance(spokenText);
-        utterance.lang = 'fr-FR';
-        utterance.rate = 0.9;
-
-        const voices = window.speechSynthesis.getVoices();
-        const preferredVoice = voices.find(v => v.lang.startsWith('fr') && (v.name.includes('Google') || v.name.includes('Female'))) ||
-          voices.find(v => v.lang.startsWith('fr'));
-
-        if (preferredVoice) utterance.voice = preferredVoice;
-
-        utterance.onend = () => {
-          setIsPlaying(false);
-          setProgress(100);
-        };
-
-        // Note: Suppression du cancel() ici car il cause des bugs sur iOS Safari
-        window.speechSynthesis.speak(utterance);
-        setIsPlaying(true);
-        setProgress(0);
-      }
+      return;
     }
+
+    // ----- LECTURE / REPRENDRE -----
+    if (!textRef.current) textRef.current = buildSpokenText(artwork);
+
+    if (hasStarted && synth.paused && synth.speaking) {
+      // Cas nominal : resume() natif
+      synth.resume();
+      pauseRequestedRef.current = false;
+      setIsPlaying(true);
+      // Filet de sécurité : certains Chrome/Android ignorent resume().
+      setTimeout(() => {
+        if (!synth.speaking || synth.paused) {
+          startReading(charRef.current);
+        }
+      }, 300);
+      return;
+    }
+
+    // Pause « morte » (iOS : pause() a interrompu l'utterance) ou 1re lecture.
+    startReading(hasStarted ? charRef.current : 0);
   };
 
+  // Recommencer depuis le début.
   const restart = () => {
-    window.speechSynthesis.cancel();
-    setIsPlaying(false);
-    setProgress(0);
-    setTimeout(() => {
-      setIsPlaying(false);
-      togglePlay();
-    }, 500); // 500ms laisse le temps au buffer audio du navigateur de se vider proprement
+    if (typeof window === 'undefined') return;
+    pauseRequestedRef.current = false;
+    charRef.current = 0;
+    startReading(0);
   };
 
-  // Cleanup on unmount
+  // Arrêt propre en quittant la page.
   useEffect(() => {
     return () => {
       if (typeof window !== 'undefined') {
+        pauseRequestedRef.current = false;
         window.speechSynthesis.cancel();
       }
     };
@@ -140,7 +174,12 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
       <div className="absolute inset-0 bg-gradient-to-b from-primary-900/10 to-transparent pointer-events-none" />
 
       <header className="flex items-center justify-between mb-8 z-10">
-        <Link href={`/gallery`} className="p-3 rounded-full bg-slate-900 border border-slate-800 accessible-focus transition-transform active:scale-95 group" aria-label="Retour à la galerie">
+        <Link
+          href="/gallery"
+          className="p-3 rounded-full bg-slate-900 border border-slate-800 accessible-focus transition-transform active:scale-95 group"
+          aria-label="Retour à la galerie"
+          title="Retour à la galerie"
+        >
           <ArrowLeft size={24} className="group-hover:-translate-x-1 transition-transform" />
         </Link>
         <div className="flex items-center gap-2 text-primary-400 font-bold uppercase tracking-[0.2em] text-[10px]">
@@ -157,7 +196,6 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
           animate={{ opacity: 1, scale: 1 }}
           className="relative w-64 h-64 md:w-80 md:h-80 mb-12"
         >
-          {/* Animated rings when playing */}
           <AnimatePresence>
             {isPlaying && [1, 2, 3].map(i => (
               <motion.div
@@ -203,30 +241,45 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
               className="absolute left-0 top-0 h-full bg-gradient-to-r from-primary-600 to-indigo-500"
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
-              transition={{ type: 'linear', duration: 0.5 }}
+              transition={{ type: 'linear', duration: 0.3 }}
             />
           </div>
 
-          <div className="flex items-center justify-center gap-10">
-            <button
-              onClick={restart}
-              className="p-5 rounded-3xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white accessible-focus transition-all hover:bg-slate-800 group"
-              aria-label="Recommencer l'écoute"
-            >
-              <RotateCcw size={28} className="group-hover:rotate-[-90deg] transition-transform" />
-            </button>
+          <div className="flex items-start justify-center gap-8 sm:gap-12">
+            {/* Recommencer */}
+            <div className="flex flex-col items-center gap-3 pt-3">
+              <button
+                onClick={restart}
+                className="p-5 rounded-3xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white accessible-focus transition-all hover:bg-slate-800 group"
+                aria-label="Recommencer la lecture depuis le début"
+              >
+                <RotateCcw size={28} className="group-hover:rotate-[-90deg] transition-transform" />
+              </button>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Recommencer</span>
+            </div>
 
-            <button
-              onClick={togglePlay}
-              className={`w-28 h-28 rounded-full flex items-center justify-center transition-all bg-white text-slate-950 shadow-[0_20px_50px_rgba(0,0,0,0.3)] active:scale-95 accessible-focus ring-offset-4 ring-offset-slate-950 ring-white/10 hover:ring-white/30 ring-2
-                ${!isPlaying ? 'bg-primary-500 text-white border-none' : ''}`}
-              aria-label={isPlaying ? "Mettre en pause" : "Lancer l'audiodescription"}
-            >
-              {isPlaying ? <Pause size={56} fill="currentColor" /> : <Play size={56} className="ml-2" fill="currentColor" />}
-            </button>
+            {/* Lecture / Pause / Reprendre : symbole ET libellé toujours visibles */}
+            <div className="flex flex-col items-center gap-3">
+              <button
+                onClick={togglePlay}
+                className={
+                  isPlaying
+                    ? 'w-28 h-28 rounded-full flex items-center justify-center bg-white text-slate-950 shadow-[0_20px_50px_rgba(0,0,0,0.3)] active:scale-95 accessible-focus ring-offset-4 ring-offset-slate-950 ring-white/10 hover:ring-white/30 ring-2 transition-all'
+                    : 'w-28 h-28 rounded-full flex items-center justify-center bg-primary-500 text-white shadow-[0_20px_50px_rgba(14,165,233,0.4)] active:scale-95 accessible-focus ring-offset-4 ring-offset-slate-950 ring-white/10 hover:ring-white/30 ring-2 transition-all'
+                }
+                aria-label={isPlaying ? 'Pause' : hasStarted ? 'Reprendre la lecture' : 'Lecture'}
+              >
+                {isPlaying
+                  ? <Pause size={56} fill="currentColor" />
+                  : <Play size={56} className="ml-2" fill="currentColor" />}
+              </button>
+              <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                {isPlaying ? 'Pause' : hasStarted ? 'Reprendre' : 'Lecture'}
+              </span>
+            </div>
 
-            {/* Hidden placeholder to keep layout balanced */}
-            <div className="w-16 md:w-20" />
+            {/* Placeholder invisible pour garder la symétrie */}
+            <div className="w-16 sm:w-20" aria-hidden="true" />
           </div>
         </div>
 
