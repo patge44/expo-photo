@@ -23,6 +23,14 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
   const textRef = useRef('');
   const pauseRequestedRef = useRef(false);
 
+  // Secours pour les navigateurs qui n'émettent AUCUN événement onboundary
+  // (Chrome Android notamment) : on estime la position par le temps écoulé.
+  // ~13 caractères/seconde pour une voix française à rate 0.9.
+  const CHARS_PER_SEC = 13;
+  const boundaryFiredRef = useRef(false);
+  const fromRef = useRef(0);
+  const startedAtRef = useRef(0);
+
   useEffect(() => {
     async function fetchArtwork() {
       try {
@@ -74,6 +82,7 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
     // et une barre de progression exacte (fini le timer estimé).
     utterance.onboundary = (e) => {
       if (typeof e.charIndex === 'number') {
+        boundaryFiredRef.current = true; // ce navigateur émet bien les positions
         charRef.current = from + e.charIndex;
         setProgress(Math.min(100, Math.round((charRef.current / text.length) * 100)));
       }
@@ -92,6 +101,9 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
     };
 
     pauseRequestedRef.current = false;
+    boundaryFiredRef.current = false;
+    fromRef.current = from;
+    startedAtRef.current = Date.now();
     synth.speak(utterance);
     setIsPlaying(true);
     setHasStarted(true);
@@ -105,6 +117,20 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
     if (isPlaying) {
       // ----- PAUSE -----
       pauseRequestedRef.current = true;
+
+      // Secours Android : si aucun onboundary n'est jamais arrivé (Chrome
+      // Android n'en émet pas), on estime la position par le temps écoulé
+      // depuis le départ de lecture, sinon la reprise repartirait du début.
+      if (!boundaryFiredRef.current) {
+        const elapsedSec = (Date.now() - startedAtRef.current) / 1000;
+        const text = textRef.current;
+        charRef.current = Math.min(
+          Math.max(fromRef.current, fromRef.current + Math.round(elapsedSec * CHARS_PER_SEC)),
+          Math.max(0, text.length - 1)
+        );
+        setProgress(Math.min(100, Math.round((charRef.current / text.length) * 100)));
+      }
+
       synth.pause();
       setIsPlaying(false);
       return;
