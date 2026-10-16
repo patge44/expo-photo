@@ -18,16 +18,23 @@ export default function ScanPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Un QR ne doit mener QUE vers une page œuvre de CE site.
-  const resolveArtworkUrl = (text: string): string | null => {
+  // TEMPORAIRE (diagnostic) : affiche la raison exacte du refus au lieu
+  // de refuser en silence. À repasser en version sobre après diagnostic.
+  const resolveArtworkUrl = (text: string): { url: string } | { reason: string } => {
+    let url: URL;
     try {
-      const url = new URL(text);
-      if (url.origin !== window.location.origin) return null;
-      const m = url.pathname.match(/^\/audio\/([0-9a-f-]{36})$/i);
-      if (!m) return null;
-      return `/audio/${m[1]}`;
+      url = new URL(text);
     } catch {
-      return null;
+      return { reason: `Ce n'est pas une URL. Contenu lu : « ${text.slice(0, 60)} »` };
     }
+    if (url.origin !== window.location.origin) {
+      return { reason: `Origine différente. Lu : « ${url.origin} » — attendu : « ${window.location.origin} »` };
+    }
+    const m = url.pathname.match(/^\/audio\/([0-9a-f-]{36})$/i);
+    if (!m) {
+      return { reason: `Chemin non reconnu : « ${url.pathname} »` };
+    }
+    return { url: `/audio/${m[1]}` };
   };
 
   const stopCamera = useCallback(() => {
@@ -84,19 +91,17 @@ export default function ScanPage() {
           const code = jsQR(imageData.data, w, h, { inversionAttempts: 'dontInvert' });
 
           if (code?.data && !navigatingRef.current) {
-            const target = resolveArtworkUrl(code.data);
-            if (target) {
+            const result = resolveArtworkUrl(code.data);
+            if ('url' in result) {
               navigatingRef.current = true;
               stopCamera();
-              router.push(target);
+              router.push(result.url);
               return;
             } else {
-              // QR lu mais pas une œuvre : on affiche sans spammer.
-              if (!navigatingRef.current) {
-                setError("Ce QR code ne correspond pas à une œuvre de l'exposition.");
-                navigatingRef.current = true; // évite le repassage immédiat
-                setTimeout(() => { navigatingRef.current = false; }, 2000);
-              }
+              // QR lu mais pas une œuvre : raison affichée, sans spammer.
+              navigatingRef.current = true;
+              setError(result.reason); // TEMPORAIRE : raison détaillée
+              setTimeout(() => { navigatingRef.current = false; }, 3000);
             }
           }
         }
