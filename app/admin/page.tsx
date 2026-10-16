@@ -242,9 +242,6 @@ export default function AdminPage() {
             <Link href="/admin/manage" className="px-4 py-2 border border-red-200 text-red-600 dark:border-red-900 dark:text-red-400 rounded-xl text-sm font-bold shadow-sm hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors">
               Gérer/Supprimer les photos
             </Link>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-xl text-sm font-medium shadow-sm">
-              Admin
-            </div>
           </div>
         </header>
 
