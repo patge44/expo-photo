@@ -5,8 +5,7 @@ import { motion } from 'framer-motion';
 import { Headphones, ArrowRight, Camera, Loader2, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useSiteConfig } from '@/components/site-config';
-import { Headphones, ArrowRight, Camera, Loader2, Sparkles, ScanLine } from 'lucide-react';
-interface Artwork {
+cd...interface Artwork {
   id: string;
   title: string;
   photo_number?: string;

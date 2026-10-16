@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, use } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, RotateCcw, Volume2, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import { Play, Pause, RotateCcw, Volume2, ArrowLeft, Loader2, AlertCircle, ScanLine, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSiteConfig } from '@/components/site-config';
 
@@ -13,6 +13,7 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [finished, setFinished] = useState(false); // TRANCHE 9 : fin naturelle atteinte
   const [progress, setProgress] = useState(0);
   const [artwork, setArtwork] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -68,6 +69,8 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
     const text = textRef.current;
     if (!text) return;
 
+    setFinished(false); // TRANCHE 9 : on relance → plus « terminé »
+
     const utterance = new SpeechSynthesisUtterance(text.slice(from));
     utterance.lang = 'fr-FR';
     utterance.rate = 0.9;
@@ -98,6 +101,7 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
       setHasStarted(false);
       charRef.current = 0;
       setProgress(100);
+      setFinished(true); // TRANCHE 9 : fin naturelle → proposer le scan suivant
     };
 
     pauseRequestedRef.current = false;
@@ -143,6 +147,7 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
       // Cas nominal : resume() natif
       synth.resume();
       pauseRequestedRef.current = false;
+      setFinished(false); // TRANCHE 9
       setIsPlaying(true);
       // Filet de sécurité : certains Chrome/Android ignorent resume().
       setTimeout(() => {
@@ -307,6 +312,48 @@ export default function AudioPlayerPage({ params }: { params: Promise<{ id: stri
             {/* Placeholder invisible pour garder la symétrie */}
             <div className="w-16 sm:w-20" aria-hidden="true" />
           </div>
+
+          {/* TRANCHE 9 : après la fin naturelle, proposer le scan suivant */}
+          <AnimatePresence>
+            {finished && !isPlaying && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="p-6 rounded-3xl bg-slate-900/80 border border-primary-500/20 text-center"
+                role="status"
+              >
+                <div className="flex items-center justify-center gap-2 text-primary-400 font-bold text-sm mb-4">
+                  <CheckCircle2 size={18} />
+                  <span>Audiodescription terminée</span>
+                </div>
+                <Link
+                  href="/scan"
+                  className="w-full px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-bold text-lg shadow-lg shadow-primary-500/20 transition-all active:scale-95 accessible-focus inline-flex items-center justify-center gap-3"
+                  aria-label="Scanner l'œuvre suivante"
+                >
+                  <ScanLine size={22} />
+                  Scanner l'œuvre suivante
+                </Link>
+                <div className="mt-4 flex items-center justify-center gap-6 text-sm">
+                  <button
+                    onClick={restart}
+                    className="text-slate-400 hover:text-white underline underline-offset-4 transition-colors accessible-focus"
+                    aria-label="Réécouter cette œuvre"
+                  >
+                    Réécouter
+                  </button>
+                  <Link
+                    href="/gallery"
+                    className="text-slate-400 hover:text-white underline underline-offset-4 transition-colors"
+                    aria-label="Retour à la galerie"
+                  >
+                    Retour à la galerie
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Descriptive Text Card */}
