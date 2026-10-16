@@ -17,22 +17,24 @@ export default function ScanPage() {
   const [status, setStatus] = useState<'idle' | 'starting' | 'scanning' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
 
-  // Un QR ne doit mener QUE vers une page œuvre de CE site.
-  // TEMPORAIRE (diagnostic) : affiche la raison exacte du refus au lieu
-  // de refuser en silence. À repasser en version sobre après diagnostic.
+  // Un QR doit mener vers une page œuvre de CE site uniquement.
+  // (Pas d'origines historiques : les anciens QR Vercel n'ont jamais été
+  // diffusés au-dehors — ils étaient collés sur les photos de l'exposition
+  // et ont été régénérés dans la galerie. Validation stricte, décision
+  // de Patrick le 16/10.)
   const resolveArtworkUrl = (text: string): { url: string } | { reason: string } => {
     let url: URL;
     try {
       url = new URL(text);
     } catch {
-      return { reason: `Ce n'est pas une URL. Contenu lu : « ${text.slice(0, 60)} »` };
+      return { reason: 'Ce QR code ne correspond pas à une œuvre de l\'exposition.' };
     }
     if (url.origin !== window.location.origin) {
-      return { reason: `Origine différente. Lu : « ${url.origin} » — attendu : « ${window.location.origin} »` };
+      return { reason: 'Ce QR code ne correspond pas à une œuvre de l\'exposition.' };
     }
     const m = url.pathname.match(/^\/audio\/([0-9a-f-]{36})$/i);
     if (!m) {
-      return { reason: `Chemin non reconnu : « ${url.pathname} »` };
+      return { reason: 'Ce QR code ne correspond pas à une œuvre de l\'exposition.' };
     }
     return { url: `/audio/${m[1]}` };
   };
@@ -98,9 +100,9 @@ export default function ScanPage() {
               router.push(result.url);
               return;
             } else {
-              // QR lu mais pas une œuvre : raison affichée, sans spammer.
+              // QR lu mais pas une œuvre : raison sobre, sans spammer.
               navigatingRef.current = true;
-              setError(result.reason); // TEMPORAIRE : raison détaillée
+              setError(result.reason);
               setTimeout(() => { navigatingRef.current = false; }, 3000);
             }
           }
