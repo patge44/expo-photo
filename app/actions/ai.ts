@@ -1,6 +1,6 @@
 'use server';
 
-import { describeImage } from '@/lib/gemini';
+import { describeImage } from "@/lib/ai";
 
 /**
  * Analyse une image via Gemini Vision 1.5 Flash (Côté Serveur).

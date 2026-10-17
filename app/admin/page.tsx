@@ -296,7 +296,7 @@ export default function AdminPage() {
             {status === 'analyzing' && (
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-3xl flex flex-col items-center gap-4 text-center">
                 <Loader2 className="animate-spin text-primary-500" size={40} />
-                <p className="font-medium">L'IA de qualité (Édition Flash) analyse votre photo...</p>
+               <p className="font-medium">L'IA analyse votre photo...</p>
                 <p className="text-sm text-slate-400 italic">Extraction des détails et construction du texte descriptif.</p>
               </div>
             )}
