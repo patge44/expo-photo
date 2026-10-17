@@ -18,13 +18,18 @@ export default function Home() {
         className="max-w-2xl z-10"
       >
         {/* Nom du club : ligne à part, hors du bloc d'intro */}
+                {/* Logo du club (si configuré) + nom du club : ligne à part */}
+        {siteConfig.logoUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={siteConfig.logoUrl}
+            alt={`Logo ${siteConfig.clubName}`}
+            className="h-20 w-auto mx-auto mb-4"
+          />
+        )}
         <p className="text-sm font-bold uppercase tracking-widest text-primary-600 dark:text-primary-400 mb-3">
           {siteConfig.clubName}
         </p>
-
-        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-indigo-600 dark:from-primary-400 dark:to-indigo-400">
-          {siteConfig.exhibitionName}
-        </h1>
 
         {/* Texte d'intro éditable par club via INTRO_TEXT (.env) */}
         <p className="text-lg text-slate-600 dark:text-slate-400 mb-8 max-w-xl mx-auto leading-relaxed">

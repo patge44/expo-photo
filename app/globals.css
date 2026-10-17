@@ -5,6 +5,19 @@
 :root {
   --background: #ffffff;
   --foreground: #0f172a;
+
+  /* Palette primary par défaut (bleu ciel, identique à l'ancienne config) */
+  --c-primary-50: 240 249 255;
+  --c-primary-100: 224 242 254;
+  --c-primary-200: 186 230 253;
+  --c-primary-300: 125 211 252;
+  --c-primary-400: 56 189 248;
+  --c-primary-500: 14 165 233;
+  --c-primary-600: 2 132 199;
+  --c-primary-700: 3 105 161;
+  --c-primary-800: 7 89 133;
+  --c-primary-900: 12 74 110;
+  --c-primary-950: 8 47 73;
 }
 
 [data-theme='dark'] {
