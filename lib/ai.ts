@@ -56,6 +56,8 @@ function extractJson(text: string) {
 // Valide la structure attendue par l'interface (titres + 3 textes).
 // Évite le crash "Cannot read properties of undefined (reading 'map')"
 // quand l'IA omet une clé.
+// v4 : journalise l'objet reçu en cas d'échec → lecture via
+// `docker compose logs app-atoutsud | grep -A 20 "Structure invalide"`.
 function validateProposal(data: any) {
   if (
     !data ||
@@ -67,6 +69,7 @@ function validateProposal(data: any) {
     typeof data.description.details !== 'string' ||
     typeof data.description.atmosphere !== 'string'
   ) {
+    console.error('[IA] Structure invalide — objet renvoyé par le modèle :\n' + JSON.stringify(data, null, 2));
     throw new Error("L'IA n'a pas respecté le format attendu (titres ou textes manquants). Relancez l'analyse.");
   }
   return data;
