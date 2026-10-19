@@ -53,12 +53,41 @@ function extractJson(text: string) {
   }
 }
 
+// v5 (19/10) : le journal v4 a révélé la cause — Pixtral TRADUIT les clés
+// du JSON en français ("titres", "atmosphère") car le prompt est en français,
+// alors que Gemini respecte le gabarit anglais ("titles", "atmosphere").
+// On normalise les variantes françaises avant validation.
+function normalizeKeys(data: any) {
+  if (!data || typeof data !== 'object') return data;
+
+  // Variantes françaises observées ou plausibles → clés attendues
+  const keyMap: Record<string, string> = {
+    titres: 'titles',
+    titre: 'titles',
+    'atmosphère': 'atmosphere',
+    atmosphere_accents: 'atmosphere', // (garde-fou futur, non observé)
+    aperçu: 'overview',
+    resume: 'overview',
+    résumé: 'overview',
+    detail: 'details',
+    'détails': 'details',
+    'détail': 'details',
+  };
+
+  const out: any = Array.isArray(data) ? [] : {};
+  for (const [k, v] of Object.entries(data)) {
+    const normKey = keyMap[k.toLowerCase()] || k;
+    out[normKey] = typeof v === 'object' && v !== null ? normalizeKeys(v) : v;
+  }
+  return out;
+}
+
 // Valide la structure attendue par l'interface (titres + 3 textes).
 // Évite le crash "Cannot read properties of undefined (reading 'map')"
-// quand l'IA omet une clé.
-// v4 : journalise l'objet reçu en cas d'échec → lecture via
+// quand l'IA omet une clé. Journalise l'objet reçu en cas d'échec →
 // `docker compose logs app-atoutsud | grep -A 20 "Structure invalide"`.
-function validateProposal(data: any) {
+function validateProposal(rawData: any) {
+  const data = normalizeKeys(rawData);
   if (
     !data ||
     !Array.isArray(data.titles) ||
@@ -69,7 +98,7 @@ function validateProposal(data: any) {
     typeof data.description.details !== 'string' ||
     typeof data.description.atmosphere !== 'string'
   ) {
-    console.error('[IA] Structure invalide — objet renvoyé par le modèle :\n' + JSON.stringify(data, null, 2));
+    console.error('[IA] Structure invalide — objet renvoyé par le modèle :\n' + JSON.stringify(rawData, null, 2));
     throw new Error("L'IA n'a pas respecté le format attendu (titres ou textes manquants). Relancez l'analyse.");
   }
   return data;
