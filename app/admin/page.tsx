@@ -75,7 +75,7 @@ export default function AdminPage() {
     });
   };
 
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       if (selectedFile.size > 20 * 1024 * 1024) {
@@ -111,7 +111,7 @@ export default function AdminPage() {
       const base64Full = await fileToBase64(file);
       const base64Data = base64Full.split(',')[1];
       const result = await analyzePhotoAction(base64Data);
-      
+
       if (result.success && result.data) {
         setProposal(result.data);
         setSelectedTitle(result.data.titles[0]);
@@ -167,7 +167,7 @@ export default function AdminPage() {
           color: { dark: '#020617', light: '#ffffff' }
         });
         setQrUrl(qr);
-        
+
         setStatus('saved');
         confetti({
           particleCount: 150,
@@ -176,7 +176,7 @@ export default function AdminPage() {
           colors: ['#0ea5e9', '#6366f1', '#10b981']
         });
       } else {
-        setError(result.error || "Échec de l'enregistrement. Vérifiez vos permissions Supabase.");
+        setError(result.error || "Échec de l'enregistrement.");
       }
     } catch (err: any) {
       setError(err.message);
@@ -194,13 +194,13 @@ export default function AdminPage() {
           </div>
           <h1 className="text-3xl font-bold mb-2">Œuvre publiée !</h1>
           <p className="text-slate-500 mb-8 font-medium italic">"{customTitle || selectedTitle}"</p>
-          
+
           {qrUrl && (
             <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl mb-8 inline-block mx-auto">
               <img src={qrUrl} alt="QR Code" className="w-48 h-48 mx-auto" />
               <p className="text-[10px] uppercase tracking-widest font-black text-slate-400 mt-4">Scanner pour écouter</p>
-              <a 
-                href={qrUrl} 
+              <a
+                href={qrUrl}
                 download={`QR_${(customTitle || selectedTitle).replace(/\s+/g, '_')}.png`}
                 className="mt-4 inline-block text-xs font-bold text-primary-600 hover:underline"
               >
@@ -210,7 +210,7 @@ export default function AdminPage() {
           )}
 
           <div className="flex flex-col gap-3">
-            <button 
+            <button
               onClick={() => { setFile(null); setPreview(null); setStatus('idle'); setProposal(null); }}
               className="px-8 py-4 bg-primary-600 text-white rounded-2xl font-bold transition-all hover:scale-105 shadow-lg shadow-primary-500/20"
             >
@@ -234,7 +234,7 @@ export default function AdminPage() {
               <ArrowLeft size={20} />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Espace Club Photo</h1>
+              <h1 className="text-3xl font-bold tracking-tight">Espace {siteConfig.clubName}</h1>
               <p className="text-slate-700 dark:text-slate-300 font-medium">Gérez vos œuvres et préparez l'accessibilité</p>
             </div>
           </div>
@@ -248,17 +248,17 @@ export default function AdminPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Section Upload */}
           <section className="space-y-6">
-            <div 
+            <div
               className={`relative border-2 border-dashed rounded-3xl p-10 transition-all text-center
                 ${preview ? 'border-primary-500 bg-primary-50/10' : 'border-slate-300 dark:border-slate-700 hover:border-primary-400'}`}
             >
-              <input 
-                type="file" 
-                accept="image/*" 
+              <input
+                type="file"
+                accept="image/*"
                 onChange={handleFileChange}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
-              
+
               {!preview ? (
                 <div className="flex flex-col items-center gap-4">
                   <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
@@ -284,7 +284,7 @@ export default function AdminPage() {
             )}
 
             {preview && status === 'idle' && (
-              <button 
+              <button
                 onClick={handleAnalysis}
                 className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95"
               >
@@ -296,7 +296,7 @@ export default function AdminPage() {
             {status === 'analyzing' && (
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-3xl flex flex-col items-center gap-4 text-center">
                 <Loader2 className="animate-spin text-primary-500" size={40} />
-               <p className="font-medium">L'IA analyse votre photo...</p>
+                <p className="font-medium">L'IA analyse votre photo...</p>
                 <p className="text-sm text-slate-400 italic">Extraction des détails et construction du texte descriptif.</p>
               </div>
             )}
@@ -306,7 +306,7 @@ export default function AdminPage() {
           <section className="space-y-6">
             <AnimatePresence mode="wait">
               {proposal ? (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -323,20 +323,20 @@ export default function AdminPage() {
                     <label className="text-sm font-medium text-slate-500 block mb-3">Titre de l'œuvre :</label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
                       {proposal.titles.map((title, i) => (
-                        <button 
-                          key={i} 
+                        <button
+                          key={i}
                           onClick={() => { setSelectedTitle(title); setCustomTitle(""); }}
                           className={`text-left px-4 py-3 border rounded-xl transition-all text-sm font-medium
                             ${selectedTitle === title && !customTitle
-                              ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/40 text-primary-700 dark:text-primary-300 ring-2 ring-primary-500/20' 
+                              ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/40 text-primary-700 dark:text-primary-300 ring-2 ring-primary-500/20'
                               : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'}`}
                         >
                           {title}
                         </button>
                       ))}
                     </div>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       placeholder="Ou saisissez votre propre titre..."
                       value={customTitle}
                       onChange={(e) => setCustomTitle(e.target.value)}
@@ -344,8 +344,8 @@ export default function AdminPage() {
                     />
 
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">Numéro de la photo (Cartel) :</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       placeholder="Ex: 01, A4, etc."
                       value={photoNumber}
                       onChange={(e) => setPhotoNumber(e.target.value)}
@@ -358,7 +358,7 @@ export default function AdminPage() {
                     <div className="p-1 space-y-4">
                       <div>
                         <span className="text-[10px] font-black uppercase tracking-widest text-primary-600 dark:text-primary-400 block mb-1">Aperçu global</span>
-                        <textarea 
+                        <textarea
                           className="w-full p-4 text-sm font-medium text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl leading-relaxed italic resize-y min-h-[100px] focus:ring-2 focus:ring-primary-500"
                           value={proposal.description.overview}
                           onChange={(e) => updateProposalField('overview', e.target.value)}
@@ -366,7 +366,7 @@ export default function AdminPage() {
                       </div>
                       <div>
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300 block mb-1">Détails de l'image</span>
-                        <textarea 
+                        <textarea
                           className="w-full p-4 text-sm font-medium text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl leading-relaxed resize-y min-h-[150px] focus:ring-2 focus:ring-primary-500"
                           value={proposal.description.details}
                           onChange={(e) => updateProposalField('details', e.target.value)}
@@ -374,7 +374,7 @@ export default function AdminPage() {
                       </div>
                       <div>
                         <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 block mb-1">Ambiance visuelle</span>
-                        <textarea 
+                        <textarea
                           className="w-full p-4 text-sm font-medium text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl leading-relaxed resize-y min-h-[100px] focus:ring-2 focus:ring-primary-500"
                           value={proposal.description.atmosphere}
                           onChange={(e) => updateProposalField('atmosphere', e.target.value)}
@@ -384,7 +384,7 @@ export default function AdminPage() {
                   </div>
 
                   <div className="pt-6 flex flex-col sm:flex-row gap-4">
-                    <button 
+                    <button
                       onClick={handleSave}
                       disabled={isSaving}
                       className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-2xl font-bold transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 active:scale-95"
@@ -392,7 +392,7 @@ export default function AdminPage() {
                       {isSaving ? <Loader2 className="animate-spin" size={20} /> : <PartyPopper size={20} />}
                       {isSaving ? "Enregistrement..." : "Valider et Publier"}
                     </button>
-                    <button 
+                    <button
                       disabled={isSaving}
                       onClick={() => { setProposal(null); setStatus('idle'); }}
                       className="px-6 py-4 border border-red-200 text-red-600 font-bold dark:border-red-900 dark:text-red-400 rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/30 disabled:opacity-50 transition-colors"
@@ -417,4 +417,3 @@ export default function AdminPage() {
     </div>
   );
 }
-

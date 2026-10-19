@@ -5,6 +5,7 @@ import { deleteArtworkAction, updateArtworkAction } from '@/app/actions/db';
 import { downloadCartelJPEG } from '@/lib/cartel';
 import { Loader2, Trash2, ArrowLeft, Image as ImageIcon, Search, Edit3, Save, X, Presentation } from 'lucide-react';
 import Link from 'next/link';
+import { useSiteConfig } from '@/components/site-config';
 
 interface Artwork {
   id: string;
@@ -19,6 +20,7 @@ interface Artwork {
 }
 
 export default function ManagePage() {
+  const siteConfig = useSiteConfig();
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -97,7 +99,7 @@ export default function ManagePage() {
             </Link>
             <div>
               <h1 className="text-3xl font-bold tracking-tight">Bibliothèque</h1>
-              <p className="text-slate-500">Gérez, éditez ou téléchargez chaque Cartel JPEG 17x4.</p>
+              <p className="text-slate-500">Gérez, éditez ou téléchargez chaque Cartel JPEG {siteConfig.cartelWidthCm}x{siteConfig.cartelHeightCm}.</p>
             </div>
           </div>
         </header>
@@ -193,13 +195,16 @@ export default function ManagePage() {
                           </div>
                         ) : (
                           <div className="flex flex-col gap-2 items-end opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => downloadCartelJPEG(artwork)} className="p-2 px-3 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition font-bold" title="Télécharger le Cartel Format A4/Bandeau">
+                            <button onClick={() => downloadCartelJPEG(artwork, {
+                              widthCm: siteConfig.cartelWidthCm,
+                              heightCm: siteConfig.cartelHeightCm,
+                            })} className="p-2 px-3 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition font-bold" title="Télécharger le Cartel Format A4/Bandeau">
                               <Presentation size={18} />
                             </button>
                             <button onClick={() => startEditing(artwork)} className="p-2 text-slate-500 bg-slate-100 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition" title="Éditer les textes">
                               <Edit3 size={18} />
                             </button>
-                            <button onClick={() => handleDelete(artwork.id, artwork.image_url)} disabled={deletingId === artwork.id} className="p-2 text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-950/50 rounded-lg transition" title="Supprimer">
+                            <button onClick={() => handleDelete(artwork.id, artwork.image_url)} disabled={deletingId === artwork.id} className="p-2 text-red-500 bg-red-50 hover:bg-red-100 dark:hover:red-950/20 dark:hover:bg-red-950/50 rounded-lg transition" title="Supprimer">
                               {deletingId === artwork.id ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
                             </button>
                           </div>
