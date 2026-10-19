@@ -20,6 +20,10 @@ function repairJson(raw: string): string {
   );
 }
 
+// v3 (17/10 soir) : après l'échec de la v2 (« structure invalide »), on ajoute
+// (a) le retrait des virgules traînantes, (b) le LOG du JSON brut dans les logs
+// du conteneur au moment de l'échec — pour lire la vraie malformation de
+// Pixtral via `docker compose logs app-atoutsud` et la corriger précisément.
 function extractJson(text: string) {
   // Retire d'éventuelles barrières markdown ```json ... ```
   const cleaned = text.replace(/```(?:json)?/g, '');
@@ -35,7 +39,16 @@ function extractJson(text: string) {
     try {
       return JSON.parse(repairJson(raw));
     } catch {
-      throw new Error("L'IA a renvoyé un JSON illisible (structure invalide). Relancez l'analyse.");
+      // 3e tentative : virgules traînantes avant } ou ]
+      const noTrailing = repairJson(raw).replace(/,\s*([}\]])/g, '$1');
+      try {
+        return JSON.parse(noTrailing);
+      } catch {
+        // ÉCHEC : on log le JSON brut pour diagnostic (à lire dans
+        // `docker compose logs app-atoutsud`) avant d'abandonner.
+        console.error('[IA] JSON illisible — contenu brut renvoyé par le modèle :\n' + raw);
+        throw new Error("L'IA a renvoyé un JSON illisible (structure invalide). Relancez l'analyse.");
+      }
     }
   }
 }
@@ -91,11 +104,12 @@ async function describeWithMistral(imageBase64: string) {
     },
     body: JSON.stringify({
       model,
+      response_format: { type: "json_object" },
       messages: [
         {
           role: "user",
           content: [
-            { type: "text", text: IA_PROMPT },
+            { type: "text", text: IA_PROMPT + "\n\nIMPORTANT : réponds UNIQUEMENT par l'objet JSON demandé, sans texte autour, sans markdown, et sans retours à la ligne à l'intérieur des chaînes de caractères." },
             {
               type: "image_url",
               image_url: { url: `data:image/jpeg;base64,${imageBase64}` },
